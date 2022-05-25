@@ -1,5 +1,8 @@
-export const createOfferTemplate = (point) => {
+import {createElement} from '../render.js';
+
+const createOfferFormTemplate = (point) => {
   const {pointType, destination, destinationInfo} = point;
+
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -142,3 +145,28 @@ export const createOfferTemplate = (point) => {
   </form>
 </li>`;
 };
+
+export default class OfferFormView {
+  #element = null;
+  #point = null;
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createOfferFormTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
