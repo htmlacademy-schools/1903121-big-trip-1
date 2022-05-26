@@ -7,8 +7,7 @@ const createSiteMenuTemplate = () =>
         <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
         <a class="trip-tabs__btn" href="#">Stats</a>
       </nav>
-  </div>
-  `;
+  </div>`;
 
 export default class SiteMenuView {
   #element = null;
