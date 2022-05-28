@@ -1,8 +1,8 @@
 import {createElement} from '../render.js';
 
-const createPointListTemplate = () => '<div class="trip-events__list"></div>';
+const createNoPointListTemplate = () => '<p class="trip-events__msg">Click New Event to create your first point</p>';
 
-export default class PointListView {
+export default class NoPointListView {
   #element = null;
 
   get element() {
@@ -14,7 +14,7 @@ export default class PointListView {
   }
 
   get template() {
-    return createPointListTemplate();
+    return createNoPointListTemplate();
   }
 
   removeElement() {
