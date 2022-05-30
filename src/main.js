@@ -2,7 +2,7 @@ import {render, RenderPosition} from './render.js';
 import {generatePoint} from './mock/data';
 
 import HeaderInfoView from './view/header-info-view';
-import SiteMenuView from './view/site-menu-view';
+import TripTabsView from './view/trip-tabs-view';
 import FilterView from './view/filter-view';
 import SortView from './view/sort-view';
 import PointView from './view/point-view';
@@ -39,28 +39,30 @@ const renderPoint = (pointListElement, point) => {
     }
   };
 
-  pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', replacePointToForm, document.addEventListener('keydown', onEscKeydowm));
+  pointComponent.setEditClickHandler(() => {
+    replacePointToForm();
+    document.addEventListener('keydown', onEscKeydowm);
+  });
 
-  pointEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-    evt.preventDefault();
+  pointEditComponent.setFormSubmitHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscKeydowm);
   });
 
-  render(pointListElement, pointComponent.element, RenderPosition.BEFOREEND);
+  render(pointListElement, pointComponent, RenderPosition.BEFOREEND);
 };
 
 const pointListComponent = new PointListView();
-render(tripEventsElement, pointListComponent.element, RenderPosition.BEFOREEND);
+render(tripEventsElement, pointListComponent, RenderPosition.BEFOREEND);
 
-render(siteMenuElement, new SiteMenuView().element, RenderPosition.BEFOREEND);
-render(filtersElement, new FilterView().element, RenderPosition.BEFOREEND);
+render(siteMenuElement, new TripTabsView(), RenderPosition.BEFOREEND);
+render(filtersElement, new FilterView(), RenderPosition.BEFOREEND);
 
 if (points.length === 0) {
-  render(pointListComponent.element, new NoPointListView().element, RenderPosition.BEFOREEND);
+  render(pointListComponent, new NoPointListView(), RenderPosition.BEFOREEND);
 } else {
   render(headElement, new HeaderInfoView(points[0]).element, RenderPosition.AFTERBEGIN);
-  render(tripEventsElement, new SortView().element, RenderPosition.AFTERBEGIN);
+  render(tripEventsElement, new SortView(), RenderPosition.AFTERBEGIN);
 
   points.forEach((point) => {
     renderPoint(pointListComponent.element, point);
