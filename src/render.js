@@ -33,3 +33,19 @@ export const createElement = (template) => {
 
   return newElement.firstElementChild;
 };
+
+export const replace = (newElement, oldElement) => {
+  const newChild = newElement instanceof AbstractView ? newElement.element : newElement;
+  const oldChild = oldElement instanceof AbstractView ? oldElement.element : oldElement;
+  const parent = oldChild.parentElement;
+  parent.replaceChild(newChild, oldChild);
+};
+
+export const remove = (component) => {
+  if (component === null) {
+    return;
+  }
+
+  component.element.remove();
+  component.removeElement();
+};
