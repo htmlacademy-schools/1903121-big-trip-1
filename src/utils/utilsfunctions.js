@@ -5,15 +5,6 @@ const getRandomNumber = (firstNumber, secondNumber) => {
   return Math.floor(minNum + Math.random() * (maxNum - minNum + 1));
 };
 
-const getDiffDates = (dayOne, dayTwo) => {
-  const dateDiff = Math.abs(dayOne - dayTwo);
-  const days = Math.floor(dateDiff / (24 * 60 * 60 * 1000));
-  const hours = Math.floor(dateDiff / (60 * 60 * 1000) - (24 * days));
-  const minutes = dateDiff / (60 * 1000) - (days * 24 * 60) - (hours * 60);
-
-  return {'days': days, 'hours': hours, 'minuts': minutes};
-};
-
 const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
 
@@ -28,4 +19,4 @@ const updateItem = (items, update) => {
   ];
 };
 
-export { getRandomNumber, getDiffDates, updateItem };
+export {getRandomNumber, updateItem};
