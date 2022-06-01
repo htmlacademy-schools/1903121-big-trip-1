@@ -1,6 +1,5 @@
 import EventItemView from '../view/event-item-view.js';
 import EditPointView from '../view/edit-point-view.js';
-import EditOfferView from '../view/edit-offer-view.js';
 import EventOfferView from '../view/event-offer-view.js';
 import { RenderPosition, render, replace , remove } from '../render.js';
 
@@ -68,11 +67,6 @@ export default class EventPresenter {
     remove(this.#eventEditComponent);
   }
 
-  #removeOfferElements = () => {
-    const offersElement = this.#eventEditComponent.element.querySelectorAll('.event__offer-selector');
-    offersElement.forEach((offer) =>  offer.remove());
-  }
-
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -83,14 +77,13 @@ export default class EventPresenter {
 
   #replaceEventToEditPoint = () => {
     replace(this.#eventEditComponent, this.#eventComponent);
-    const availableOffers = this.#eventEditComponent.element.querySelector('.event__available-offers');
-    this.#tripEvent.offers.forEach((offer) =>  render(availableOffers, new EditOfferView(offer), RenderPosition.BEFOREEND));
     this.#changeMode();
     this.#mode = Mode.EDITING;
     document.addEventListener('keydown', this.#onEscKeyDown);
   }
 
   #replaceEditPointToEvent = () => {
+    this.#eventEditComponent.reset(this.#tripEvent);
     replace(this.#eventComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#mode = Mode.DEFAULT;
@@ -98,7 +91,7 @@ export default class EventPresenter {
 
   #renderOffers = () => {
     const selectedOffers = this.#eventComponent.element.querySelector('.event__selected-offers');
-    this.#tripEvent.offers.forEach((offer) =>  render(selectedOffers, new EventOfferView(offer), RenderPosition.BEFOREEND));
+    this.#tripEvent.type.currentType.selectedOffer.forEach((offer) => render(selectedOffers, new EventOfferView(offer), RenderPosition.BEFOREEND));
   }
 
   #handleFavoriteClick = () => {

@@ -5,8 +5,8 @@ const createEventItemTemplate = (event) => {
   const {date, type, city, allPrice, favorite, time} = event;
 
   const day = dayjs(date.dataBeginEvent).format('D MMM');
-  const title = type.title;
-  const img = type.img;
+  const title = type.currentType.title;
+  const img = type.currentType.img;
   let favoriteItem = '';
 
   if (favorite === true) {
@@ -19,7 +19,7 @@ const createEventItemTemplate = (event) => {
     <div class="event__type">
       <img class="event__type-icon" width="42" height="42" src="${img}" alt="Event type icon">
     </div>
-    <h3 class="event__title">${title} ${city}</h3>
+    <h3 class="event__title">${title} ${city.currentCity.titleCity}</h3>
     <div class="event__schedule">
       <p class="event__time">
         <time class="event__start-time" datetime="2019-03-18T10:30">${time.startTime}</time>

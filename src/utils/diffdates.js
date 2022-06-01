@@ -1,12 +1,12 @@
-const getDiffDates = (dayOne, dayTwo) => {
-  const diffDateUnix = Math.abs(dayOne - dayTwo);
+import dayjs from 'dayjs';
 
-  const days = Math.floor(diffDateUnix / (24 * 60 * 60 * 1000));
+const getDiffDates = (day1, day2) => {
+  const dateDiff = Math.abs(dayjs(day1).diff(dayjs(day2)));
+  const days = Math.floor(dateDiff / (24 * 60 * 60 * 1000));
+  const hours = Math.floor(dateDiff / (60 * 60 * 1000) - (24 * days));
+  const minutes = dateDiff / (60 * 1000) - (days * 24 * 60) - (hours * 60);
 
-  const hours = Math.floor(diffDateUnix / (60 * 60 * 1000) - (24 * days));
-
-  const minuts = diffDateUnix / (60 * 1000) - (days * 24 * 60) - (hours * 60);
-  return { 'days': days, 'hours': hours, 'minuts': minuts, 'unix': diffDateUnix };
+  return { 'days': days, 'hours': hours, 'minuts': minutes, 'unix': dateDiff };
 };
 
 export {getDiffDates};

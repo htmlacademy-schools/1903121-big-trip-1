@@ -1,7 +1,7 @@
 import { generateEvents } from './mock/point.js';
 import TripPresenter from './presenter/trip-presenter.js';
 
-const EVENTS_COUNT = 5;
+const EVENTS_COUNT = 15;
 
 const events = Array.from({length: EVENTS_COUNT}, generateEvents);
 
