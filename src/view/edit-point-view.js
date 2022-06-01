@@ -54,7 +54,10 @@ const createEditPointTemplate = (event = {}) => {
 
   let photoTemplate = '';
   if (city.currentCity.isShowPhoto) {
-    city.currentCity.photos.forEach((photo) => photoTemplate += createPhoto(photo));
+    city.currentCity.photos.forEach((photo) => {
+      const res = photoTemplate += createPhoto(photo);
+      return res;
+    });
     photoTemplate = createContainer(photoTemplate);
   }
   const beginDate = dayjs(date.dataBeginEvent).format('YY/MM/DD HH:mm');
