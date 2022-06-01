@@ -4,8 +4,9 @@ import EventsListView from '../view/events-list-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
-import {updateItem} from '../mock/utils.js';
+import {updateItem} from '../utils/utilsfunctions.js';
 import {render, RenderPosition} from '../render.js';
+import {SortType, sortEventDate, sortEventTime, sortEventPrice} from '../utils/sorting.js';
 
 export default class TripPresenter {
   #tripContainer = null;
@@ -18,6 +19,7 @@ export default class TripPresenter {
   #sortComponent =  new SortView();
   #listEventComponent = new EventsListView();
   #eventEmptyComponent = new EmptyListView();
+  #currentSortType = null;
 
   constructor(tripContainer, menuContainer, filterContainer) {
     this.#tripContainer = tripContainer;
@@ -34,6 +36,22 @@ export default class TripPresenter {
     this.#renderBoard();
   }
 
+  #sortTasks = (sortType) => {
+    switch (sortType) {
+      case SortType.DAY.text:
+        this.#tripEvents.sort(sortEventDate);
+        break;
+      case SortType.TIME.text:
+        this.#tripEvents.sort(sortEventTime);
+        break;
+      case SortType.PRICE.text:
+        this.#tripEvents.sort(sortEventPrice);
+        break;
+    }
+
+    this.#currentSortType = sortType;
+  }
+
   #handleModeChange = () => {
     this.#eventPresenters.forEach((eventPresenter) => eventPresenter.resetView());
   }
@@ -43,8 +61,20 @@ export default class TripPresenter {
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   }
 
+  #changeSortType = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortTasks(sortType);
+    this.#clearEventList();
+    this.#renderListEvent();
+    this.#renderEvents();
+  }
+
   #renderSort = () => {
     render(this.#tripContainer, this.#sortComponent, RenderPosition.BEFOREEND);
+    this.#sortComponent.setSortTypeChangeHandler(this.#changeSortType);
   }
 
   #renderListEvent = () => {
@@ -81,5 +111,6 @@ export default class TripPresenter {
     this.#renderSort();
     this.#renderListEvent();
     this.#renderEvents();
+    this.#changeSortType('day');
   }
 }

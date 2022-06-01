@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
-import { getRandomNumber, getDiffDates } from './utils.js';
+import { getRandomNumber } from '../utils/utilsfunctions.js';
 import { nanoid } from 'nanoid';
+import { getDiffDates } from '../utils/diffdates.js';
 
 let totalPrice = 0;
 const cities = ['Amsterdam', 'Geneva', 'Chamonix'];
@@ -33,7 +34,8 @@ const generateTime = (date) => {
   return {
     'startTime': `${dayjs(date.dataBeginEvent).format('HH')}:${dayjs(date.dataBeginEvent).format('mm')}`,
     'endTime': `${dayjs(date.dataEndEvent).format('HH')}:${dayjs(date.dataEndEvent).format('mm')}`,
-    'duration': durationFormat
+    'duration': durationFormat,
+    'arrayDurationFormat': duration
   };
 };
 
