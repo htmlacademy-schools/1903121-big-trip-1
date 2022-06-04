@@ -12,6 +12,7 @@ const types = [
   { title: 'taxi', img: 'img/icons/taxi.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
   { title: 'bus', img: 'img/icons/bus.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
   { title: 'drive', img: 'img/icons/drive.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
+  { title: 'ship', img: 'img/icons/ship.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
   { title: 'check-in', img: 'img/icons/check-in.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
   { title: 'flight', img: 'img/icons/flight.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
   { title: 'restaurant', img: 'img/icons/restaurant.png', allOffer: [], selectedOffer: [], allPriceOffers: 0 },
@@ -50,7 +51,7 @@ const generateTime = (date) => {
 
 const generateDate = () => {
   const days = 7;
-  const daysGap = getRandomNumber(0, days);
+  const daysGap = getRandomNumber(-7, days);
   const daysAddGap = daysGap + getRandomNumber(0, 2);
   const firstHoursAdd = getRandomNumber(1, 6);
   const lastHoursAdd = getRandomNumber(firstHoursAdd, firstHoursAdd + 10);
@@ -93,8 +94,8 @@ const generateOffers = () => {
         typeRoute.selectedOffer.push(offer);
         typeRoute.allPriceOffers += offer.price;
         countOffers--;
-        offerTitle.splice(numberElement, 1);
       }
+      offerTitle.splice(numberElement, 1);
     }
   });
 };
@@ -131,4 +132,4 @@ const generateEvents = () => {
   };
 };
 
-export { generateEvents };
+export { generateEvents, generateTime };
