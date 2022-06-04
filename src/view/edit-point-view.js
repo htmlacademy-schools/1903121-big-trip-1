@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import SmartView from './smart-view.js';
 import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import { generateTime } from '../mock/point.js';
 
 const createPhoto = (photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`;
 const createContainer = (photo) => (
@@ -14,7 +15,7 @@ const createContainer = (photo) => (
 const createEditOffer = (offer) => {
   const { title, price } = offer;
   return `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.id}-1" type="checkbox" name="event-offer-${title.id}">
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.id}-1" type="checkbox" name="event-offer-${title.id}" value="${title.id}">
   <label class="event__offer-label" for="event-offer-${title.id}-1">
     <span class="event__offer-title">${title.text}</span>
     &plus;&euro;&nbsp;
@@ -30,13 +31,17 @@ const createEditPointTemplate = (event = {}) => {
     city = null,
   } = event;
 
+  let offersView = '';
+  let photoTemplate = '';
+  let beginDate = '';
+  let endDate = '';
+
   type.arrayType.forEach((arrayTypeElement) => {
     if (arrayTypeElement.title === type.currentType.title) {
       type.currentType = arrayTypeElement;
     }
   });
 
-  let offersView = '';
   type.currentType.allOffer.forEach((offer) => {
     const offerCurrent = createEditOffer(offer);
     offersView += offerCurrent;
@@ -54,16 +59,16 @@ const createEditPointTemplate = (event = {}) => {
     }
   });
 
-  let photoTemplate = '';
   if (city.currentCity.isShowPhoto) {
     city.currentCity.photos.forEach((photo) => {
-      const res = photoTemplate += createPhoto(photo);
-      return res;
+      const onePhotoTemplate = createPhoto(photo);
+      photoTemplate += onePhotoTemplate;
     });
     photoTemplate = createContainer(photoTemplate);
   }
-  const beginDate = dayjs(date.dataBeginEvent).format('YY/MM/DD HH:mm');
-  const endDate = dayjs(date.dataEndEvent).format('YY/MM/DD HH:mm');
+
+  beginDate = dayjs(date.dataBeginEvent).format('YY/MM/DD HH:mm');
+  endDate = dayjs(date.dataEndEvent).format('YY/MM/DD HH:mm');
 
   return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -143,9 +148,9 @@ const createEditPointTemplate = (event = {}) => {
         </div>
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
+        ${!event.isCreateEvent ? `<button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
-        </button>
+        </button>` : ''}
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
@@ -180,6 +185,7 @@ export default class EditPointView extends SmartView {
     this.#setInnerHandlers();
     this.setFormSubmitHadler(this._callback.formSubmit);
     this.setClickRollupHandler(this._callback.click);
+    this.setDeleteClickHandler(this._callback.deleteClick);
     this.#setBeginDate();
     this.#setEndDate();
   }
@@ -201,22 +207,26 @@ export default class EditPointView extends SmartView {
   }
 
   #setBeginDate = () => {
+    const currentDate = this._data.date ? this._data.date.dataBeginEvent : '';
     this.#date = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
-        dateFormat: 'd/m/y H:m',
-        defaultDate: this._data.date.dataBeginEvent,
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: currentDate,
         onChange: this.#beginDateChangeHandler,
       },
     );
   }
 
   #setEndDate = () => {
+    const currentDate = this._data.date ? this._data.date.dataEndEvent : '';
     this.#date = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
-        dateFormat: 'd/m/y H:m',
-        defaultDate: this._data.date.dataEndEvent,
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: currentDate,
         onChange: this.#endDateChangeHandler,
       },
     );
@@ -226,12 +236,14 @@ export default class EditPointView extends SmartView {
     this.updateData({
       date: { dataBeginEvent: userDate, dataEndEvent: this._data.date.dataEndEvent },
     });
+    this._data.time =  generateTime({dataBeginEvent: userDate, dataEndEvent: this._data.date.dataEndEvent});
   }
 
   #endDateChangeHandler = ([userDate]) => {
     this.updateData({
       date: { dataBeginEvent: this._data.date.dataBeginEvent, dataEndEvent: userDate },
     });
+    this._data.time = generateTime({ dataBeginEvent: this._data.date.dataBeginEvent, dataEndEvent: userDate });
   }
 
   #setInnerHandlers = () => {
@@ -250,13 +262,21 @@ export default class EditPointView extends SmartView {
   setClickRollupHandler = (callback) => {
     this._callback.click = callback;
     this._data.city.currentCity.isShowPhoto = false;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+    const rollupButtonTemplate = this.element.querySelector('.event__rollup-btn');
+    if (rollupButtonTemplate) {
+      rollupButtonTemplate.addEventListener('click', this.#clickHandler);
+    }
   }
 
   setFormSubmitHadler = (callback) => {
     this._callback.formSubmit = callback;
     this._data.city.currentCity.isShowPhoto = false;
     this.element.querySelector('.event').addEventListener('submit', this.#formSubmitHandler);
+  }
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
   }
 
   #clickHandler = (evt) => {
@@ -266,6 +286,18 @@ export default class EditPointView extends SmartView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    const offersTemplate = document.querySelectorAll('.event__offer-checkbox');
+    const filteredOffersCheked = Array.from(offersTemplate).filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value);
+    const filteredOffersData = Array.from(this._data.type.currentType.allOffer)
+      .filter((offer) =>
+        filteredOffersCheked
+          .some((filteredOfferCheked) => filteredOfferCheked === offer.title.id));
+    this._data.type.currentType.selectedOffer = filteredOffersData;
+    this._callback.formSubmit(this._data);
+  }
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(this._data);
   }
 }
