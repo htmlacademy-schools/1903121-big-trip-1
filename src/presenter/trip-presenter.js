@@ -1,4 +1,3 @@
-import TripTabsView from '../view/trip-tabs-view';
 import EventsListView from '../view/events-list-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
@@ -9,35 +8,31 @@ import { filter } from '../utils/filter.js';
 import { generateEvents } from '../mock/point.js';
 import { SortType, sortEventDate, sortEventTime, sortEventPrice } from '../utils/sorting.js';
 import { RenderPosition, render, remove } from '../render.js';
+import { clearStats } from '../utils/statistic.js';
 
 export default class TripPresenter {
   #tripContainer = null;
-  #menuContainer = null;
   #eventPresenters = new Map();
   #eventNewPresenter = null;
   #sortType = SortType.DAY.text;
   #eventsModel = null;
   #filterModel = null;
-  #menuComponent = new TripTabsView();
   #sortComponent = null;
   #listEventComponent = new EventsListView();
   #eventEmptyComponent = null;
   #filterType = FilterType.EVERYTHING;
 
-  constructor(tripContainer, menuContainer, eventsModel, filterModel) {
+  constructor(tripContainer, eventsModel, filterModel) {
     this.#tripContainer = tripContainer;
-    this.#menuContainer = menuContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
     this.#eventNewPresenter = new EventNewPresenter(this.#listEventComponent, this.#handleViewAction);
-    this.#eventsModel.addObserver(this.#handleModelEvent);
-    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init = () => {
-    render(this.#menuContainer, this.#menuComponent, RenderPosition.BEFOREEND);
-
     this.#renderBoard();
+    this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   createEvent = () => {
@@ -45,6 +40,9 @@ export default class TripPresenter {
     event.city.currentCity.isShowPhoto = true;
     const createEventData = {...event, isCreateEvent : true};
     this.#handleModeChange();
+    this.#sortType = SortType.DAY.text;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    clearStats();
     this.#eventNewPresenter.init(createEventData);
   }
 
@@ -84,6 +82,13 @@ export default class TripPresenter {
     }
 
     return filteredEvents;
+  }
+
+  destroy = () => {
+    this.#clearBoard({ resetSortType: true});
+    remove(this.#listEventComponent);
+    this.#eventsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
   #handleViewAction = (actionType, updateType, update) => {

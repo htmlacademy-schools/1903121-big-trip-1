@@ -16,5 +16,6 @@ const sortEventTime = (task1, task2) => {
 };
 
 const sortEventPrice = (task1, task2) => task2.allPrice - task1.allPrice;
+const sortStats = (task1, task2) => task2[1] - task1[1];
 
-export {sortEventDate, sortEventTime, sortEventPrice, SortType};
+export { sortEventDate, sortEventTime, sortEventPrice, sortStats, SortType };
