@@ -15,3 +15,21 @@ export const FilterType = {
   FUTURE: 'future',
   PAST: 'past',
 };
+
+export const MenuTabs = {
+  ADD_NEW_EVENT: 'ADD_NEW_EVENT',
+  EVENTS: 'EVENTS',
+  STATISTICS: 'STATISTICS',
+};
+
+export const eventType = {
+  TAXI: 'taxi',
+  BUS: 'bus',
+  TRAIN: 'train',
+  SHIP: 'ship',
+  FLIGHT: 'flight',
+  DRIVE: 'drive',
+  RESTAURANT: 'restaurant',
+  CHECKIN: 'check-in',
+  SIGHTSEEING: 'sightseeing'
+};
