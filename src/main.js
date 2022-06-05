@@ -22,24 +22,24 @@ buttonAddNewPoint.disabled = true;
 const eventsModel = new PointsModel(new RestApi(END_POINT, AUTHORIZATION));
 const filterModel = new FiltersModel();
 const tripPresenter = new TripPresenter(tripEventsContainer, eventsModel, filterModel);
-const filterPresenter = new FilterPresenter(filtersElement, filterModel);
-
-filterPresenter.init();
+const filterPresenter = new FilterPresenter(filtersElement, filterModel, eventsModel);
 tripPresenter.init();
 
 let statView = null;
 const handleSiteMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuTabs.EVENTS:
+      tripEventsContainer.classList.add('trip-events');
       filterPresenter.destroy();
       tripPresenter.destroy();
-      filterPresenter.init();
+      filterPresenter.init(eventsModel.events);
       tripPresenter.init();
       remove(statView);
       statView = null;
       clearStats();
       break;
     case MenuTabs.STATISTICS:
+      tripEventsContainer.classList.remove('trip-events');
       countStat(eventsModel.events);
       statView = new StatisticsView();
       render(mainElement, statView, RenderPosition.BEFOREEND);
@@ -51,6 +51,7 @@ const handleSiteMenuClick = (menuItem) => {
 };
 
 eventsModel.init().finally(() => {
+  filterPresenter.init(eventsModel.events);
   render(navigationElement, siteMenuComponent, RenderPosition.BEFOREEND);
   buttonAddNewPoint.disabled = false;
   siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
@@ -59,12 +60,13 @@ eventsModel.init().finally(() => {
 buttonAddNewPoint.addEventListener('click', (event) => {
   event.preventDefault();
   event.target.disabled = true;
+  tripEventsContainer.classList.add('trip-events');
   const tableTab = document.querySelector('#EVENTS');
   const statTab = document.querySelector('#STATISTICS');
   tableTab.classList.add('trip-tabs__btn--active');
   statTab.classList.remove('trip-tabs__btn--active');
   filterPresenter.destroy();
-  filterPresenter.init();
+  filterPresenter.init(eventsModel.events);
   tripPresenter.destroy();
   if(statView) {
     remove(statView);
