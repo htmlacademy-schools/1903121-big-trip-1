@@ -84,8 +84,8 @@ const createEditPointTemplate = (event) => {
 
   if (city.currentCity.isShowPhoto) {
     city.currentCity.photos.forEach((photo) => {
-      const onePhotoTemplate = createPhoto(photo);
-      photoTemplate += onePhotoTemplate;
+      const createdPhoto = createPhoto(photo);
+      photoTemplate += createdPhoto;
     });
     photoTemplate = createContainer(photoTemplate);
   }
@@ -283,7 +283,7 @@ export default class EditPointView extends SmartView {
 
   setClickRollupHandler = (callback) => {
     this._callback.click = callback;
-    if(!this._data.isCreateEvent) {
+    if (!this._data.isCreateEvent) {
       this._data.city.currentCity.isShowPhoto = false;
     }
     const rollupButtonTemplate = this.element.querySelector('.event__rollup-btn');
@@ -294,7 +294,7 @@ export default class EditPointView extends SmartView {
 
   setFormSubmitHadler = (callback) => {
     this._callback.formSubmit = callback;
-    if(!this._data.isCreateEvent) {
+    if (!this._data.isCreateEvent) {
       this._data.city.currentCity.isShowPhoto = false;
     }
     this.element.querySelector('.event').addEventListener('submit', this.#formSubmitHandler);

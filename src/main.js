@@ -15,11 +15,11 @@ const filtersElement = document.querySelector('.trip-controls__filters');
 const buttonAddNewPoint = document.querySelector('.trip-main__event-add-btn');
 const tripEventsContainer = document.querySelector('.trip-events');
 
-const siteMenuComponent = new TripTabsView();
-const AUTHORIZATION = 'Basic gjgtrhgrughei313';
-const END_POINT = 'https://16.ecmascript.pages.academy/big-trip';
+const tripTabsComponent = new TripTabsView();
+const Authorization = 'Basic bo1w597in298efa';
+const endPoint = 'https://16.ecmascript.pages.academy/big-trip';
 buttonAddNewPoint.disabled = true;
-const eventsModel = new PointsModel(new RestApi(END_POINT, AUTHORIZATION));
+const eventsModel = new PointsModel(new RestApi(endPoint, Authorization));
 const filterModel = new FiltersModel();
 const tripPresenter = new TripPresenter(tripEventsContainer, eventsModel, filterModel);
 const filterPresenter = new FilterPresenter(filtersElement, filterModel, eventsModel);
@@ -52,9 +52,9 @@ const handleSiteMenuClick = (menuItem) => {
 
 eventsModel.init().finally(() => {
   filterPresenter.init(eventsModel.events);
-  render(navigationElement, siteMenuComponent, RenderPosition.BEFOREEND);
+  render(navigationElement, tripTabsComponent, RenderPosition.BEFOREEND);
   buttonAddNewPoint.disabled = false;
-  siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+  tripTabsComponent.setMenuClickHandler(handleSiteMenuClick);
 });
 
 buttonAddNewPoint.addEventListener('click', (event) => {
