@@ -14,18 +14,19 @@ export default class TripTabsView extends AbstractView {
   }
 
   setMenuClickHandler = (callback) => {
-    const d = document.querySelector('.trip-controls__trip-tabs');
+    const tabs = document.querySelector('.trip-controls__trip-tabs');
     this._callback.menuClick = callback;
-    d.addEventListener('click', this.#menuClickHandler);
+    tabs.addEventListener('click', this.#menuClickHandler);
   }
 
   #menuClickHandler = (evt) => {
     const currentLink = document.querySelector(`#${evt.target.dataset.value}`);
     const prevLink = document.querySelector('.trip-tabs__btn--active');
-    currentLink.classList.add('trip-tabs__btn--active');
-    prevLink.classList.remove('trip-tabs__btn--active');
-
-    this._callback.menuClick(evt.target.dataset.value);
+    if (prevLink !== currentLink) {
+      currentLink.classList.add('trip-tabs__btn--active');
+      prevLink.classList.remove('trip-tabs__btn--active');
+      this._callback.menuClick(evt.target.dataset.value);
+    }
   }
 }
 
