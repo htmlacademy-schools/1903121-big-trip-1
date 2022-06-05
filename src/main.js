@@ -1,4 +1,3 @@
-import { generateEvents } from './mock/point.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import PointsModel from './model/points-model.js';
 import FiltersModel from './model/filters-model.js';
@@ -8,22 +7,21 @@ import { MenuTabs } from './types.js';
 import { countStat, clearStats } from './utils/statistic.js';
 import StatisticsView from './view/statistic-view.js';
 import { RenderPosition, render, remove } from './render.js';
-
-const EVENTS_COUNT = 15;
-
-const events = Array.from({length: EVENTS_COUNT}, generateEvents);
+import  RestApi  from './rest-api.js';
 
 const mainElement = document.querySelector('.page-main').querySelector('.page-body__container');
 const navigationElement = document.querySelector('.trip-controls__navigation');
 const filtersElement = document.querySelector('.trip-controls__filters');
-const eventsElement = document.querySelector('.trip-events');
+const buttonAddNewPoint = document.querySelector('.trip-main__event-add-btn');
+const tripEventsContainer = document.querySelector('.trip-events');
 
 const siteMenuComponent = new TripTabsView();
-const eventsModel = new PointsModel();
-eventsModel.events = events;
+const AUTHORIZATION = 'Basic gjgtrhgrughei313';
+const END_POINT = 'https://16.ecmascript.pages.academy/big-trip';
+buttonAddNewPoint.disabled = true;
+const eventsModel = new PointsModel(new RestApi(END_POINT, AUTHORIZATION));
 const filterModel = new FiltersModel();
-render(navigationElement, siteMenuComponent, RenderPosition.BEFOREEND);
-const tripPresenter = new TripPresenter(eventsElement, eventsModel, filterModel);
+const tripPresenter = new TripPresenter(tripEventsContainer, eventsModel, filterModel);
 const filterPresenter = new FilterPresenter(filtersElement, filterModel);
 
 filterPresenter.init();
@@ -33,9 +31,12 @@ let statView = null;
 const handleSiteMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuTabs.EVENTS:
+      filterPresenter.destroy();
+      tripPresenter.destroy();
       filterPresenter.init();
       tripPresenter.init();
       remove(statView);
+      statView = null;
       clearStats();
       break;
     case MenuTabs.STATISTICS:
@@ -44,14 +45,20 @@ const handleSiteMenuClick = (menuItem) => {
       render(mainElement, statView, RenderPosition.BEFOREEND);
       filterPresenter.destroy();
       tripPresenter.destroy();
+      tripPresenter.renderInfoTrip();
       break;
   }
 };
 
-siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+eventsModel.init().finally(() => {
+  render(navigationElement, siteMenuComponent, RenderPosition.BEFOREEND);
+  buttonAddNewPoint.disabled = false;
+  siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+});
 
-document.querySelector('.trip-main__event-add-btn').addEventListener('click', (event) => {
+buttonAddNewPoint.addEventListener('click', (event) => {
   event.preventDefault();
+  event.target.disabled = true;
   const tableTab = document.querySelector('#EVENTS');
   const statTab = document.querySelector('#STATISTICS');
   tableTab.classList.add('trip-tabs__btn--active');
@@ -59,6 +66,10 @@ document.querySelector('.trip-main__event-add-btn').addEventListener('click', (e
   filterPresenter.destroy();
   filterPresenter.init();
   tripPresenter.destroy();
-  tripPresenter.init();
+  if(statView) {
+    remove(statView);
+  }
+  clearStats();
   tripPresenter.createEvent();
+  tripPresenter.init();
 });

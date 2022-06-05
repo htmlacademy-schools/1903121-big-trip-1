@@ -38,7 +38,7 @@ export const count = {
 
 export const countStat = (events) => {
   events.forEach((event) => {
-    money[event.type.currentType.title] += event.allPrice;
+    money[event.type.currentType.title] += Number(event.basePrice);
     duration[event.type.currentType.title] += event.time.arrayDurationFormat.unix;
     count[event.type.currentType.title] += 1;
   });
