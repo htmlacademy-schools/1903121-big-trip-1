@@ -4,9 +4,10 @@ import flatpickr from 'flatpickr';
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 import { generateTime } from '../mock/point.js';
 
-const buttonAddNewPoint = document.querySelector('.trip-main__event-add-btn');
+const eventAddButton = document.querySelector('.trip-main__event-add-btn');
 
 const createPhoto = (photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`;
+
 const createContainer = (photo) => (
   `<div class="event__photos-container">
   <div class="event__photos-tape">
@@ -14,6 +15,7 @@ const createContainer = (photo) => (
   </div>
 </div>`
 );
+
 const createEditOffer = (offer, isCheckedOffer) => {
   const { title, price } = offer;
   const id = title.split(' ').join('-').toLowerCase();
@@ -34,6 +36,9 @@ const createEditPointTemplate = (event) => {
     type,
     city,
     basePrice,
+    isDisabled,
+    isSaving,
+    isDeleting,
   } = event;
 
   let offersView = '';
@@ -79,12 +84,13 @@ const createEditPointTemplate = (event) => {
 
   if (city.currentCity.isShowPhoto) {
     city.currentCity.photos.forEach((photo) => {
-      const onePhotoTemplate = createPhoto(photo);
-      photoTemplate += onePhotoTemplate;
+      const createdPhoto = createPhoto(photo);
+      photoTemplate += createdPhoto;
     });
     photoTemplate = createContainer(photoTemplate);
   }
 
+  const eventDeleteButton = (isDeleting ? 'Deleting...' : 'Delete');
   beginDate = dayjs(date.dataBeginEvent).format('YY/MM/DD HH:mm');
   endDate = dayjs(date.dataEndEvent).format('YY/MM/DD HH:mm');
 
@@ -162,8 +168,8 @@ const createEditPointTemplate = (event) => {
           </label>
           <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${!event.isCreateEvent ? basePrice : 0}">
         </div>
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${!event.isCreateEvent ? 'Delete' : 'Cancel' }</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit"${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${!event.isCreateEvent ? eventDeleteButton : 'Cancel'}</button>
         ${!event.isCreateEvent ? `<button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
         </button>` : ''}
@@ -267,17 +273,17 @@ export default class EditPointView extends SmartView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#cityChangeHandler);
   }
 
-  #cityChangeHandler = (evt) => {
-    this.updateData({ city: { currentCity: { name: evt.target.value, isShowPhoto: true }, arrayCity: this._data.city.arrayCity } });
+  #cityChangeHandler = (event) => {
+    this.updateData({ city: { currentCity: { name: event.target.value, isShowPhoto: true }, arrayCity: this._data.city.arrayCity } });
   }
 
-  #typeChangeHandler = (evt) => {
-    this.updateData({ type: { currentType: { title: evt.target.value }, arrayType: this._data.type.arrayType } });
+  #typeChangeHandler = (event) => {
+    this.updateData({ type: { currentType: { title: event.target.value }, arrayType: this._data.type.arrayType } });
   }
 
   setClickRollupHandler = (callback) => {
     this._callback.click = callback;
-    if(!this._data.isCreateEvent) {
+    if (!this._data.isCreateEvent) {
       this._data.city.currentCity.isShowPhoto = false;
     }
     const rollupButtonTemplate = this.element.querySelector('.event__rollup-btn');
@@ -288,7 +294,7 @@ export default class EditPointView extends SmartView {
 
   setFormSubmitHadler = (callback) => {
     this._callback.formSubmit = callback;
-    if(!this._data.isCreateEvent) {
+    if (!this._data.isCreateEvent) {
       this._data.city.currentCity.isShowPhoto = false;
     }
     this.element.querySelector('.event').addEventListener('submit', this.#formSubmitHandler);
@@ -299,15 +305,18 @@ export default class EditPointView extends SmartView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
   }
 
-  #clickHandler = (evt) => {
-    evt.preventDefault();
-    buttonAddNewPoint.disabled = false;
+  #clickHandler = (event) => {
+    event.preventDefault();
+    eventAddButton.disabled = false;
     this._callback.click();
+    this._data.isDisabled = false;
+    this._data.isSaving = false;
+    this._data.isDeleting = false;
   }
 
-  #formSubmitHandler = (evt) => {
-    evt.preventDefault();
-    buttonAddNewPoint.disabled = false;
+  #formSubmitHandler = (event) => {
+    event.preventDefault();
+    eventAddButton.disabled = false;
     const priceValue = this.element.querySelector('#event-price-1').value;
     this._data.basePrice = Number(priceValue);
     this._data.isCreateEvent = false;
@@ -319,11 +328,14 @@ export default class EditPointView extends SmartView {
           .some((filteredOfferCheked) => filteredOfferCheked === offer.title.toLowerCase()));
     this._data.type.currentType.selectedOffers = filteredOffersData;
     this._callback.formSubmit(this._data);
+    this._data.isDisabled = false;
+    this._data.isSaving = false;
+    this._data.isDeleting = false;
   }
 
-  #formDeleteClickHandler = (evt) => {
-    evt.preventDefault();
-    buttonAddNewPoint.disabled = false;
+  #formDeleteClickHandler = (event) => {
+    event.preventDefault();
+    eventAddButton.disabled = false;
     this._callback.deleteClick(this._data);
   }
 }

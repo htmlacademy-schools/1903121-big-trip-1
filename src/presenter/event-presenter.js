@@ -5,8 +5,9 @@ import { EventType, UpdateType } from '../types.js';
 import { isDatesEqual } from '../utils/diffdates.js';
 
 const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+  ABORTING: 'ABORTING',
 };
 
 export default class EventPresenter {
@@ -48,7 +49,8 @@ export default class EventPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#eventEditComponent, prevEventEditComponent);
+      replace(this.#eventComponent, prevEventEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
@@ -64,6 +66,35 @@ export default class EventPresenter {
   destroy = () => {
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
+  }
+
+  setViewMode = (mode) => {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    switch (mode) {
+      case mode.SAVING:
+        this.#eventEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true,
+        });
+        break;
+      case mode.DELETING:
+        this.#eventEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true,
+        });
+        break;
+      case mode.ABORTING:
+        this.#eventComponent.shake(resetFormState);
+        this.#eventEditComponent.shake(resetFormState);
+        break;
+    }
   }
 
   #onEscKeyDown = (evt) => {

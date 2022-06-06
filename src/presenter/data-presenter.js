@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import { EventType, UpdateType } from '../types.js';
 import { RenderPosition, render, remove } from '../render.js';
 
-export default class EventNewPresenter {
+export default class DataPresenter {
   #listContainer = null;
   #changeData = null;
   #editComponent = null;
@@ -37,6 +37,25 @@ export default class EventNewPresenter {
     this.#editComponent = null;
 
     document.removeEventListener('keydown', this.#onEscKeyDown);
+  }
+
+  setSaving = () => {
+    this.#editComponent.updateData({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#editComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editComponent.shake(resetFormState);
   }
 
   #onEscKeyDown = (evt) => {

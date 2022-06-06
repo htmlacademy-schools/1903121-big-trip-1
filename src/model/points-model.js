@@ -1,5 +1,5 @@
 import AbstractObservable from '../utils/abstract-observable.js';
-import { generateAllOffers, generateCities, adaptToClient, createDataNewEvent } from '../utils/adapter.js';
+import { generateAllOffers, generateCities, adapt, createDataNewEvent } from '../utils/adapter.js';
 import { UpdateType } from '../types.js';
 
 export default class PointsModel extends AbstractObservable {
@@ -18,11 +18,12 @@ export default class PointsModel extends AbstractObservable {
       const cities = await this.#apiService.cities;
       generateCities(cities);
       const events = await this.#apiService.events;
-      this.#events = events.map((event) => adaptToClient(event));
+      this.#events = events.map((event) => adapt(event));
       createDataNewEvent();
-    } catch (err) {
+    } catch (error) {
       this.#events = [];
       createDataNewEvent();
+      throw new Error('Can\'t init event');
     }
 
     this._notify(UpdateType.INIT);
@@ -30,6 +31,17 @@ export default class PointsModel extends AbstractObservable {
 
   get events() {
     return this.#events;
+  }
+
+  addEvent = async (updateType, update) => {
+    try {
+      const response = await this.#apiService.addEvent(update);
+      const newEvent = adapt(response);
+      this.#events = [newEvent, ...this.#events];
+      this._notify(updateType, newEvent);
+    } catch(error) {
+      throw new Error('Can\'t add event');
+    }
   }
 
   updateEvent = async(updateType, update) => {
@@ -41,7 +53,7 @@ export default class PointsModel extends AbstractObservable {
 
     try {
       const response = await this.#apiService.updateEvent(update);
-      const updatedEvent = adaptToClient(response);
+      const updatedEvent = adapt(response);
 
       this.#events = [
         ...this.#events.slice(0, index),
@@ -55,18 +67,22 @@ export default class PointsModel extends AbstractObservable {
     }
   }
 
-  deleteEvents = (updateType, update) => {
+  deleteEvents = async(updateType, update) => {
     const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting event');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(updateType);
+    try {
+      await this.#apiService.deleteEvent(update);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(updateType);
+    } catch(error) {
+      throw new Error('Can\'t delete event');
+    }
   }
 }

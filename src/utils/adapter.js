@@ -58,7 +58,7 @@ const generateTime = (dataBeginEvent, dataEndEvent) => {
   };
 };
 
-const adaptToClient = (event) => {
+const adapt = (event) => {
   const adaptedTask = {
     id: event.id,
     isCreateEvent: false,
@@ -88,6 +88,9 @@ const adaptToClient = (event) => {
       arrayType: arrayTypes
     },
     time: generateTime(event.date_from, event.date_to),
+    isDisabled: false,
+    isDeleting: false,
+    isSaving: false,
   };
   return adaptedTask;
 };
@@ -121,8 +124,11 @@ const createDataNewEvent = () => {
       arrayType: arrayTypes
     },
     time: generateTime(dayjs(), dayjs().add(1, 'hour')),
+    isDisabled: false,
+    isDeleting: false,
+    isSaving: false,
   };
 };
 
 
-export { adaptToClient, generateAllOffers, generateCities, createDataNewEvent , dataNewEvent };
+export { adapt, generateAllOffers, generateCities, createDataNewEvent , dataNewEvent };

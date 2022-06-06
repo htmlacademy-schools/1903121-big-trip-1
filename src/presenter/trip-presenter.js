@@ -2,7 +2,8 @@ import EventsListView from '../view/events-list-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
-import EventNewPresenter from './data-presenter.js';
+import Mode from './event-presenter.js';
+import DataPresenter from './data-presenter.js';
 import { EventType, UpdateType, FilterType } from '../types.js';
 import { filter } from '../utils/filter.js';
 import { SortType, sortEventDate, sortEventTime, sortEventPrice } from '../utils/sorting.js';
@@ -33,7 +34,7 @@ export default class TripPresenter {
     this.#tripContainer = tripContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
-    this.#eventNewPresenter = new EventNewPresenter(this.#listEventComponent, this.#handleViewAction);
+    this.#eventNewPresenter = new DataPresenter(this.#listEventComponent, this.#handleViewAction);
   }
 
   init = () => {
@@ -102,16 +103,33 @@ export default class TripPresenter {
     this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async(actionType, updateType, update) => {
     switch (actionType) {
       case EventType.UPDATE_EVENT:
+        this.#eventPresenters.get(update.id).setViewState(Mode.SAVING);
         this.#eventsModel.updateEvent(updateType, update);
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setViewState(Mode.ABORTING);
+        }
         break;
       case EventType.ADD_EVENT:
-        this.#eventsModel.addEvent(updateType, update);
+        this.#eventNewPresenter.setSaving();
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#eventNewPresenter.setAborting();
+        }
         break;
       case EventType.DELETE_EVENT:
+        this.#eventPresenters.get(update.id).setViewState(Mode.DELETING);
         this.#eventsModel.deleteEvents(updateType, update);
+        try {
+          await this.#eventsModel.deleteEvents(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setViewState(Mode.ABORTING);
+        }
         break;
     }
   }
