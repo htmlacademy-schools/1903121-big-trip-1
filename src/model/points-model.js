@@ -45,8 +45,7 @@ export default class PointsModel extends AbstractObservable {
   }
 
   updateEvent = async(updateType, update) => {
-    const index = this.#events.findIndex((event) => event.id === update.id);
-
+    let index = this.#events.findIndex((event) => event.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t update unexisting event');
     }
@@ -54,6 +53,7 @@ export default class PointsModel extends AbstractObservable {
     try {
       const response = await this.#apiService.updateEvent(update);
       const updatedEvent = adapt(response);
+      index = this.#events.findIndex((event) => event.id === update.id);
 
       this.#events = [
         ...this.#events.slice(0, index),
