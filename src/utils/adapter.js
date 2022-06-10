@@ -2,9 +2,7 @@ import dayjs from 'dayjs';
 import { getDiffDates } from './diffdates.js';
 
 let arrayCities = null;
-
 let dataNewEvent = null;
-
 const arrayTypes = [];
 
 const typeRoutes = {
@@ -66,7 +64,7 @@ const adapt = (event) => {
     city: {
       currentCity: {
         description: event.destination.description,
-        isShowPhoto: false,
+        isShowPhoto: true,
         pictures: event.destination.pictures,
         name: event.destination.name
       },
@@ -101,10 +99,10 @@ const createDataNewEvent = () => {
     isCreateEvent: true,
     city: {
       currentCity: {
-        description: arrayCities[0].description,
+        description: '',
         isShowPhoto: true,
-        pictures: arrayCities[0].pictures,
-        name: arrayCities[0].name
+        pictures: [],
+        name: ''
       },
       arrayCity: arrayCities
     },
@@ -131,4 +129,4 @@ const createDataNewEvent = () => {
 };
 
 
-export { adapt, generateAllOffers, generateCities, createDataNewEvent , dataNewEvent };
+export { adapt, generateAllOffers, generateCities, createDataNewEvent , dataNewEvent, generateTime };

@@ -32,10 +32,10 @@ export default class DataPresenter {
     if (this.#editComponent === null) {
       return;
     }
-
     remove(this.#editComponent);
     this.#editComponent = null;
-
+    const eventAddButton = document.querySelector('.trip-main__event-add-btn');
+    eventAddButton.disabled = false;
     document.removeEventListener('keydown', this.#onEscKeyDown);
   }
 
